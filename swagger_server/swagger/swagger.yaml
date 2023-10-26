@@ -1,0 +1,206 @@
+openapi: 3.0.3
+info:
+  title: Book Inventory System - OpenAPI 3.0
+  description: Book Inventory System
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: gihanbhawantha@gmail.com
+  version: 1.0.0
+servers:
+- url: /
+security:
+- basicAuth: []
+tags:
+- name: Book
+  description: Operations about book
+paths:
+  /books:
+    get:
+      tags:
+      - Book
+      summary: Get all books
+      description: ""
+      operationId: get_books
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/book'
+                x-content-type: application/json
+        "400":
+          description: Invalid Request
+        "401":
+          description: Unathorized
+        "404":
+          description: No books found
+      x-openapi-router-controller: swagger_server.controllers.book_controller
+    post:
+      tags:
+      - Book
+      summary: Create book
+      description: This can only be done by the logged in book.
+      operationId: create_book
+      requestBody:
+        description: Created book object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookCreationRequest'
+      responses:
+        "201":
+          description: Created the book successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/book'
+        "400":
+          description: Invalid Request
+        "401":
+          description: Unathorized
+      x-openapi-router-controller: swagger_server.controllers.book_controller
+  /books/{book_id}:
+    get:
+      tags:
+      - Book
+      summary: Get book by book ID
+      description: ""
+      operationId: get_book
+      parameters:
+      - name: book_id
+        in: path
+        description: 'The book ID that needs to be fetched. Use book1 for testing. '
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/book'
+        "400":
+          description: Invalid bookId supplied
+        "401":
+          description: Unathorized
+        "404":
+          description: book not found
+      x-openapi-router-controller: swagger_server.controllers.book_controller
+    put:
+      tags:
+      - Book
+      summary: Update book
+      description: Update book details
+      operationId: update_book
+      parameters:
+      - name: book_id
+        in: path
+        description: bookId that need to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        description: Update an existent book
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookCreationRequest'
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/book'
+        "400":
+          description: Invalid bookId supplied
+        "401":
+          description: Unathorized
+        "404":
+          description: book not found
+      x-openapi-router-controller: swagger_server.controllers.book_controller
+    delete:
+      tags:
+      - Book
+      summary: Delete book
+      description: Delete an book
+      operationId: delete_book
+      parameters:
+      - name: book_id
+        in: path
+        description: The bookID that needs to be deleted
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Successfully deleted book.
+        "400":
+          description: Invalid bookrID supplied
+        "401":
+          description: Unathorized
+        "404":
+          description: book not found
+      x-openapi-router-controller: swagger_server.controllers.book_controller
+components:
+  schemas:
+    book:
+      type: object
+      properties:
+        book_id:
+          type: integer
+          description: The ID of the book
+        title:
+          type: string
+          description: The title of the book
+          example: thebook
+        isbn:
+          type: string
+          description: The ISBN of the book
+          example: "12345"
+        price:
+          type: string
+          description: The price of the book
+          example: $12.99
+        book_count:
+          type: integer
+          description: The available number of books
+      example:
+        book_count: 6
+        price: $12.99
+        isbn: "12345"
+        book_id: 0
+        title: thebook
+    bookCreationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The title of the book
+          example: thebook
+        isbn:
+          type: string
+          description: The ISBN of the book
+          example: "12345"
+        price:
+          type: string
+          description: The price of the book
+          example: $12.99
+        book_count:
+          type: integer
+          description: The available number of books
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: swagger_server.controllers.authorization_controller.check_basicAuth
